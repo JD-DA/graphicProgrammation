@@ -1,25 +1,15 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
-  "CXX"
-  )
-# The set of files for implicit dependencies of each language:
-set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/etud/o2183171/Bureau/Part1/Common/shaders_utilities.cpp" "/home/etud/o2183171/Bureau/Part1/build/CMakeFiles/code01_dessin.dir/Common/shaders_utilities.cpp.o"
-  "/home/etud/o2183171/Bureau/Part1/Cours1/code01_dessin.cpp" "/home/etud/o2183171/Bureau/Part1/build/CMakeFiles/code01_dessin.dir/Cours1/code01_dessin.cpp.o"
-  )
-set(CMAKE_CXX_COMPILER_ID "GNU")
-
-# Preprocessor definitions for this target.
-set(CMAKE_TARGET_DEFINITIONS_CXX
-  "GLEW_STATIC"
-  "TW_NO_DIRECT3D"
-  "TW_NO_LIB_PRAGMA"
-  "TW_STATIC"
-  "_CRT_SECURE_NO_WARNINGS"
   )
 
-# The include file search paths:
-set(CMAKE_CXX_TARGET_INCLUDE_PATH
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/jean-daniel/Development/graphicProgrammation/Part1/Common/shaders_utilities.cpp" "CMakeFiles/code01_dessin.dir/Common/shaders_utilities.cpp.o" "gcc" "CMakeFiles/code01_dessin.dir/Common/shaders_utilities.cpp.o.d"
+  "/Users/jean-daniel/Development/graphicProgrammation/Part1/Cours1/code01_dessin.cpp" "CMakeFiles/code01_dessin.dir/Cours1/code01_dessin.cpp.o" "gcc" "CMakeFiles/code01_dessin.dir/Cours1/code01_dessin.cpp.o.d"
   )
 
 # Targets to which this target links.

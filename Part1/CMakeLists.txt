@@ -7,6 +7,13 @@ set(OpenGL_GL_PREFERENCE
 		)
 find_package(OpenGL REQUIRED)
 
+# add extra include directories
+include_directories(/usr/local/include)
+include_directories(/opt/homebrew/include)
+# add extra lib directories
+link_directories(/usr/local/lib)
+link_directories(/opt/homebrew/lib)
+
 
 set(ALL_LIBS
   ${OPENGL_LIBRARY}
@@ -14,6 +21,8 @@ set(ALL_LIBS
 	glfw
 	pthread
 )
+
+
 
 add_definitions(
 	-DTW_STATIC
@@ -32,7 +41,8 @@ target_link_libraries(code01_dessin
 )
 add_custom_command(
   TARGET code01_dessin POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/code01_dessin${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/Cours1/"
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/code01_dessin${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/Cours1/"
+		#COMMAND ${CMAKE_COMMAND}
   )
 
 add_executable(code02_dessin
