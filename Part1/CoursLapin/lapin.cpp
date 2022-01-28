@@ -8,55 +8,29 @@
 #include <GLFW/glfw3.h>
 
 #include <math.h>
-
 #include "../Common/shaders_utilities.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
+#include "modele.hpp"
+
 using namespace std;
 
-GLfloat coordonnees[] = {
-        0, 0, 0,
-        0.5, 0, 0,
-        0.5, 0.5, 0,
-        0, 0.5, 0,
-        0, 0, 0.5,
-        0.5, 0, 0.5,
-        0.5, 0.5, 0.5,
-        0, 0.5, 0.5,
-};
+GLfloat *coordonnees;
 
-GLfloat couleurs[] = {
-        1, 1, 1,
-        0, 1, 1,
-        0, 0, 1,
-        0, 1, 0,
-        1, 1, 1,
-        0, 1, 1,
-        0, 0, 1,
-        0, 1, 0
-};
+GLfloat* couleurs;
 
-GLuint indices[] = {
-        3, 0, 2,
-        0, 2, 1,
-        1, 2, 6,
-        1, 6, 5,
-        6, 5, 7,
-        5, 7, 4,
-        7, 4, 3,
-        4, 3, 0,
-        3, 2, 7,
-        2, 7, 6,
-        0, 1, 4,
-        1, 4, 5
-};
+GLuint *indices;
 
 int win;
+
 
 GLuint vboid[3];
 GLuint programID;
 GLuint vaoID;
+
+
 
 // Pour les interactions, gestion des events.
 GLFWwindow *window;
@@ -80,8 +54,34 @@ glm::mat4 MVP; // Et le produit des trois
 glm::mat4 translation; // une matrice de translation qui va nous permettre de déplacer le cube
 glm::mat4 trans_initial; // une matrice de translation pour centrer le cube
 glm::mat4 rotation; // une matrice pour construire une rotation appliquée sur le cube
-
+int nbFaces;
+int nbSommets;
 void init() {
+
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    initialisation("lapin.obj",&nbFaces,&nbSommets);
+
+    //coordonnees=(GLfloat *)malloc(3*nbSommets*sizeof(GLfloat));
+    coordonnees=new GLfloat [3*nbSommets];
+
+    couleurs=new GLfloat [3*nbSommets];
+    float step = 1./nbSommets;
+    float col = 0;
+    for (int i = 0; i < nbSommets; ++i) {
+        couleurs[i*3] = 1;
+        couleurs[i*3+1] = 1;
+        couleurs[i*3+2] = 1;
+        col+=step;
+    }
+    indices=new GLuint [3*nbFaces];
+
+    printf("nb faces : %i nb sommets : %i \n",nbFaces,nbSommets);
+
+
+    GLfloat bbox[6];
+    lecture("lapin.obj",nbSommets,nbFaces,coordonnees,indices,bbox);
+    printf("bbox : %f %f %f %f %f %f\n",bbox[0],bbox[1],bbox[2],bbox[3],bbox[4],bbox[5]);
+
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
     glEnable(GL_DEPTH_TEST);
@@ -94,18 +94,18 @@ void init() {
 
     glGenBuffers(3, vboid);
     glBindBuffer(GL_ARRAY_BUFFER, vboid[0]);
-    glBufferData(GL_ARRAY_BUFFER, 3 * 8 * sizeof(float), coordonnees, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * nbSommets * sizeof(GLfloat), coordonnees, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
     glEnableVertexAttribArray(0);
 
 
     glBindBuffer(GL_ARRAY_BUFFER, vboid[1]);
-    glBufferData(GL_ARRAY_BUFFER, 3 * 8 * sizeof(float), couleurs, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * nbSommets * sizeof(float), couleurs, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboid[2]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * 12 * sizeof(GLuint), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * nbFaces * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
 
     // Il faut transmettre les informations à la carte graphique et au vertex shader
@@ -114,15 +114,15 @@ void init() {
 
     //Avant on était en projection orthographique
     // Maintenant on est en perspective !
-    Projection = glm::perspective(70.0f, 1.0f, 0.1f, 100.0f);
+    Projection = glm::perspective(70.0f, 1.f, 1.0f, 100.0f);
     // En projection orthographique pas besoin de caméra
     // Ici il faut la placer
-    View = glm::lookAt(glm::vec3(0, 0, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    View = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
     //  std::cout<<glm::to_string(View)<<std::endl;
 
     // Création d'une matrice de translation pour déplacer le cube de -0.25 en X, Y et Z
-    trans_initial = glm::translate(glm::mat4(1.0f), glm::vec3(-0.25, -0.25, -0.25));
+    trans_initial = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
 
     // On initialise Model à l'identité
@@ -153,7 +153,7 @@ void Display(void) {
 
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-    glDrawElements(GL_TRIANGLES, 3 * 12, GL_UNSIGNED_INT, NULL);
+    glDrawElements(GL_TRIANGLES, (unsigned int)nbFaces*3, GL_UNSIGNED_INT, NULL);
     glfwSwapBuffers(window);
 }
 
