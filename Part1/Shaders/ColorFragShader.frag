@@ -7,11 +7,13 @@ in vec3 fragmentColor;
 //out vec3 Color;
 
 vec4 C;
+out vec4 color;
 
 void main(){
   //Color = fragmentColor;
   C.rgb = fragmentColor;
   C.a = 1;
-  gl_FragColor = C;
+  color=C;
+  //gl_FragColor = C;
 
 }
