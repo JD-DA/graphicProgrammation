@@ -21,6 +21,17 @@ GLfloat *coordonnees;
 
 GLfloat* couleurs;
 
+GLfloat couleurs2[] = {
+        1, 1, 1,
+        0, 1, 1,
+        0, 0, 1,
+        0, 1, 0,
+        1, 1, 1,
+        0, 1, 1,
+        0, 0, 1,
+        0, 1, 0
+};
+
 GLuint *indices;
 
 int win;
@@ -56,10 +67,16 @@ glm::mat4 trans_initial; // une matrice de translation pour centrer le cube
 glm::mat4 rotation; // une matrice pour construire une rotation appliquée sur le cube
 int nbFaces;
 int nbSommets;
+
+GLfloat ambiant[4] = {0.2,0.2,0.2,1.0};
+
+// L'identifiant supplémentaire pour transmettre ce vecteur à la carte graphique
+GLint AmbiantID;
+
 void init() {
 
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-    initialisation("lapin.obj",&nbFaces,&nbSommets);
+    initialisation("lapin.obj",&nbSommets,&nbFaces);
 
     //coordonnees=(GLfloat *)malloc(3*nbSommets*sizeof(GLfloat));
     coordonnees=new GLfloat [3*nbSommets];
