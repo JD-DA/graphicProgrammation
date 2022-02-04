@@ -103,4 +103,26 @@ add_custom_command(
 		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/codeLapin${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/CoursLapin/"
 )
 
+add_executable(code01_lumiere
+		Cours2/code01_lumiere.cpp Common/shaders_utilities.cpp
+		)
+target_link_libraries(code01_lumiere
+		${ALL_LIBS}
+		)
+add_custom_command(
+		TARGET code01_lumiere POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/code01_lumiere${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/Cours2/"
+)
+
+add_executable(code02_lumiere
+		Cours2/code02_lumiere.cpp Common/shaders_utilities.cpp
+		)
+target_link_libraries(code02_lumiere
+		${ALL_LIBS}
+		)
+add_custom_command(
+		TARGET code02_lumiere POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/code02_lumiere${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/Cours2/"
+)
+
 
