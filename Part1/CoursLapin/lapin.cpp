@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <OpenGL/gl.h>
 #include <GLFW/glfw3.h>
+#include <time.h>
 
 #include <math.h>
 #include "../Common/shaders_utilities.hpp"
@@ -33,6 +34,7 @@ GLfloat couleurs2[] = {
 };
 
 GLuint *indices;
+GLuint *normales;
 
 int win;
 
@@ -45,7 +47,7 @@ GLuint vaoID;
 
 // Pour les interactions, gestion des events.
 GLFWwindow *window;
-float stepTrans = 0.1;
+float stepTrans = 0.01;
 int mouseXOld, mouseYOld;
 double Xpos, Ypos;
 bool leftbutton = false;
@@ -54,7 +56,9 @@ bool middlebutton = false;
 
 // Un identifiant encore ....
 GLuint MatrixID;
+GLint MID;
 
+GLint lightID;
 // Des matrices ...
 // On va utiliser pour les construire et les manipuler glm (OpenGL Mathematics)
 glm::mat4 Projection; // une matrice de projection par rapport à l'écran
@@ -68,16 +72,19 @@ glm::mat4 rotation; // une matrice pour construire une rotation appliquée sur l
 int nbFaces;
 int nbSommets;
 
-GLfloat ambiant[4] = {0.2,0.2,0.2,1.0};
+GLfloat ambiant[4] = {0.8,0.8,0.8,1.0};
+GLfloat lumiere[3] = {5.0,0.0,0.0};
+GLfloat diffuse[4] = {0.8,0.8,0.8,1.0};
 
 // L'identifiant supplémentaire pour transmettre ce vecteur à la carte graphique
-GLint AmbiantID;
+
+GLint ambiantID;
+GLint diffuseID;
 
 void init() {
-
+    srand (time(NULL));
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     initialisation("lapin.obj",&nbSommets,&nbFaces);
-
     //coordonnees=(GLfloat *)malloc(3*nbSommets*sizeof(GLfloat));
     coordonnees=new GLfloat [3*nbSommets];
 
@@ -85,9 +92,9 @@ void init() {
     float step = 1./nbSommets;
     float col = 0;
     for (int i = 0; i < nbSommets; ++i) {
-        couleurs[i*3] = 1;
-        couleurs[i*3+1] = 1;
-        couleurs[i*3+2] = 1;
+        couleurs[i*3] = rand() % 10 + 1;
+        couleurs[i*3+1] = rand() % 10 + 1;
+        couleurs[i*3+2] = rand() % 10 + 1;
         col+=step;
     }
     indices=new GLuint [3*nbFaces];
@@ -99,14 +106,16 @@ void init() {
     lecture("lapin.obj",nbSommets,nbFaces,coordonnees,indices,bbox);
     printf("bbox : %f %f %f %f %f %f\n",bbox[0],bbox[1],bbox[2],bbox[3],bbox[4],bbox[5]);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0);
+    glClearColor(0.4f, 0.4f, 0.5f, 0.0f);
+    glClearDepth(3.0);
     glEnable(GL_DEPTH_TEST);
 
     glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
 
-    programID = LoadShaders("../Shaders/TransformVertexShader.vert", "../Shaders/ColorFragShader.frag");
+    //programID = LoadShaders("../Shaders/TransformVertexShader.vert", "../Shaders/ColorFragShader.frag");
+    //programID = LoadShaders( "../Shaders/AmbiantVertexShader.vert", "../Shaders/AmbiantFragmentShader.frag" );
+    programID = LoadShaders( "../Shaders/DiffuseVertexShader.vert", "../Shaders/DiffuseFragmentShader.frag" );
 
 
     glGenBuffers(3, vboid);
@@ -120,6 +129,27 @@ void init() {
     glBufferData(GL_ARRAY_BUFFER, 3 * nbSommets * sizeof(float), couleurs, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
     glEnableVertexAttribArray(1);
+//calcul des normales
+    normales=new GLuint [3*nbFaces];
+    for (int i = 0; i < nbFaces; ++i) {
+        GLuint leSommet = indices[i*3] ;
+        GLuint voisinA = indices[i*3+1];
+        GLuint voisinB = indices[i*3+2];
+        /*normales[i*3]=leSommet%2;
+        normales[i*3+1]=voisinA%2;
+        normales[i*3+2]=voisinB%2;*/
+        normales[i*3]=0;
+        normales[i*3+1]=0;
+        normales[i*3+2]=1;
+        printf("%d, %d, %d\n",normales[i*3],normales[i*3+1],normales[i*3+2]);
+
+    }
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboid[2]);
+    glBufferData(GL_ARRAY_BUFFER,3*6*4*sizeof(float),normales,GL_STATIC_DRAW);
+    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboid[2]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * nbFaces * sizeof(GLuint), indices, GL_STATIC_DRAW);
@@ -128,10 +158,11 @@ void init() {
     // Il faut transmettre les informations à la carte graphique et au vertex shader
     // D'où cet identifiant (regarder dans TransformVertexShader et la déclaration d'une variable "uniform" MVP)
     MatrixID = glGetUniformLocation(programID, "MVP");
-
+    ambiantID = glGetUniformLocation(programID, "ambiant");
+    diffuseID = glGetUniformLocation(programID, "diffuse");
     //Avant on était en projection orthographique
     // Maintenant on est en perspective !
-    Projection = glm::perspective(70.0f, 1.f, 1.0f, 100.0f);
+    Projection = glm::perspective(70.0f, 1.f, 0.1f, 100.0f);
     // En projection orthographique pas besoin de caméra
     // Ici il faut la placer
     View = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -169,12 +200,43 @@ void Display(void) {
     MVP = Projection * View * Model;
 
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glUniform4fv(diffuseID,1,diffuse);
+    glUniform4fv(ambiantID,1,ambiant);
+    glUniform3fv (lightID,1,lumiere) ;
 
     glDrawElements(GL_TRIANGLES, (unsigned int)nbFaces*3, GL_UNSIGNED_INT, NULL);
     glfwSwapBuffers(window);
 }
 
 static void Clavier(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_F && action == GLFW_PRESS)
+        lumiere[0] -= 0.5;
+    if (key == GLFW_KEY_H && action == GLFW_PRESS)
+        lumiere[0] += 0.5;
+    if (key == GLFW_KEY_T && action == GLFW_PRESS)
+        lumiere[1] -= 0.5;
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+        lumiere[1] += 0.5;
+    if (key == GLFW_KEY_J && action == GLFW_PRESS)
+        lumiere[2] -= 0.5;
+    if (key == GLFW_KEY_L && action == GLFW_PRESS)
+        lumiere[2] += 0.5;
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        for (int i = 0; i < 3; i++)
+            ambiant[i] -= 0.1;
+    }
+    if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+        for (int i = 0; i < 3; i++)
+            ambiant[i] += 0.1;
+    }
+    if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+        for (int i = 0; i < 3; i++)
+            diffuse[i] -= 0.1;
+    }
+    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+        for (int i = 0; i < 3; i++)
+            diffuse[i] += 0.1;
+    }
     if (key == GLFW_KEY_UP)
         translation = glm::translate(translation, glm::vec3(0.f, stepTrans, 0.f));
     if (key == GLFW_KEY_DOWN)
@@ -260,7 +322,7 @@ int main(int argc, char **argv) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     // Création de la fenetre
-    window = glfwCreateWindow(500, 500, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(500, 500, "Rabbit says : \"Hello World\"", NULL, NULL);
 
     glfwSetKeyCallback(window, Clavier);
     glfwSetMouseButtonCallback(window, Souris);

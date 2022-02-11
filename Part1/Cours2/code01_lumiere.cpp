@@ -135,7 +135,7 @@ glm::mat4 rotation;
 // Il s'agit d'une couleur (RGBA)
 // là c'est du blanc avec une intensité 0.2
 // Dans la fonction Clavier il est prévu de modifier cette intensité (en + ou en -)
-GLfloat ambiant[4] = {0.2,0.2,0.2,1.0};
+GLfloat ambiant[4] = {0.9,0.9,0.9,1.0};
 
 // L'identifiant supplémentaire pour transmettre ce vecteur à la carte graphique
 GLint AmbiantID;
@@ -177,7 +177,7 @@ void init() {
   MatrixID = glGetUniformLocation(programID, "MVP");
   AmbiantID = glGetUniformLocation(programID, "ambiant");
   
-  Projection = glm::perspective(70.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+  Projection = glm::perspective(70.0f, 1.f, 1.f, 100.0f);
   View = glm::lookAt(glm::vec3(0,0,-5.0), glm::vec3(0,0,0), glm::vec3(0,1,0));
   
   trans_initial = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5,-0.5,-0.5));
