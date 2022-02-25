@@ -125,4 +125,38 @@ add_custom_command(
 		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/code02_lumiere${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/Cours2/"
 )
 
+add_executable(codeLapinV2
+		CoursLapin/codeLapinV2.cpp Common/shaders_utilities.cpp CoursLapin/modele.cpp
+		)
+target_link_libraries(codeLapinV2
+		${ALL_LIBS}
+		)
+add_custom_command(
+		TARGET codeLapinV2 POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/codeLapinV2${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/CoursLapin/"
+)
+
+
+add_executable(code01_trajectoire
+		LecteurTraj/code01_trajectoire.cpp LecteurTraj/lecture.cpp Common/shaders_utilities.cpp Common/lecture_trajectoire.cpp Common/xdrfile.c
+		)
+target_link_libraries(code01_trajectoire
+		${ALL_LIBS}
+		)
+
+add_custom_command(
+		TARGET code01_trajectoire POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/code01_trajectoire${CMAKE_EXECUTABLE_SUFFIX}" "LecteurTraj"
+)
+
+add_executable(codeIcosaedre
+		CoursIcosaedre/codeIcosaedre.cpp Common/shaders_utilities.cpp CoursIcosaedre/icosaedre.cpp
+		)
+target_link_libraries(codeLapinV2
+		${ALL_LIBS}
+		)
+add_custom_command(
+		TARGET codeIcosaedre POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/codeIcosaedre${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/CoursIcosaedre/"
+)
 

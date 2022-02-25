@@ -17,7 +17,7 @@ static GLfloat coordonnees[] = {
 
 
 // Des identifiants
-GLuint vboID;
+GLuint vboid;
 GLuint programID;
 GLuint vaoID;
 
@@ -40,10 +40,10 @@ void init() {
     programID = LoadShaders("../Shaders/SimpleVertexShader.vert", "../Shaders/SimpleFragmentShader.frag");
 
     // Création d'un identifiant de VBO Vertex Buffer Object
-    glGenBuffers(1, &vboID);
+    glGenBuffers(1, &vboid);
 
-    // On travaille désormais sur ce VBO identifié par vboID
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    // On travaille désormais sur ce VBO identifié par vboid
+    glBindBuffer(GL_ARRAY_BUFFER, vboid);
 
     // On charge les données à partir du tableau sommets qui contient bien les coordonnées 3D de 3 sommets
     glBufferData(GL_ARRAY_BUFFER, 3 * 3 * sizeof(float), coordonnees, GL_STATIC_DRAW);

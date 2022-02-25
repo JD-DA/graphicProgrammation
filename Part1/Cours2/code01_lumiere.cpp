@@ -114,7 +114,7 @@ bool leftbutton = false;
 bool rightbutton = false;
 bool middlebutton = false;
 
-GLuint vboID[3];
+GLuint vboid[3];
 GLuint programID;
 GLuint vaoID;
 
@@ -154,20 +154,20 @@ void init() {
   glGenVertexArrays(1, &vaoID);
   glBindVertexArray(vaoID);
 
-  glGenBuffers(3,vboID);
+  glGenBuffers(3, vboid);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vboID[0]);
+  glBindBuffer(GL_ARRAY_BUFFER, vboid[0]);
   glBufferData(GL_ARRAY_BUFFER,3*6*4*sizeof(float),coordonnees,GL_STATIC_DRAW);
   glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void*)0);
   glEnableVertexAttribArray(0);
   
-  glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
+  glBindBuffer(GL_ARRAY_BUFFER, vboid[1]);
   glBufferData(GL_ARRAY_BUFFER,3*6*4*sizeof(float),couleurs,GL_STATIC_DRAW);
   glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(void*)0);
   glEnableVertexAttribArray(1);
 
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID[2]);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboid[2]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,3*12*sizeof(GLuint),indices,GL_STATIC_DRAW);
   
   
